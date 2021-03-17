@@ -22,18 +22,18 @@ import numpy as np
 from sensor_msgs.msg import Image, RegionOfInterest
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
+import os
 
 base_type = os.getenv('BASE_TYPE')
 
 class linefollow:
     def __init__(self):
-        rospy.on_shutdown(self.cleanup)
-
+        self.dark_ground = bool(rospy.get_param('~dark_ground',False))
         self.bridge = CvBridge()
         self.image_pub = rospy.Publisher("cv_bridge_image", Image, queue_size=1)
         self.image_gray_pub = rospy.Publisher("gray_image_image", Image, queue_size=1)
 
-        self.image_sub = rospy.Subscriber("input_rgb_image", Image, self.image_callback, queue_size=1)
+        self.image_sub = rospy.Subscriber("image_raw", Image, self.image_callback, queue_size=1)
         self.pub_cmd = rospy.Publisher('cmd_vel', Twist, queue_size=5)
 
         self.twist = Twist()
@@ -49,11 +49,16 @@ class linefollow:
         frame1 = cv2.resize(frame,(160,120),interpolation=cv2.INTER_CUBIC)
 
         gray = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-
+        
         ret,binary  = cv2.threshold(gray,100,255,cv2.THRESH_BINARY)
-        kernel = np.ones((5,5),np.uint8)
-        opening = cv2.morphologyEx(binary,cv2.MORPH_OPEN,kernel)
+
+        if self.dark_ground:
+            binary = cv2.bitwise_not(binary) 
+
+        kernel = np.ones((7,7),np.uint8)
+
         binary = cv2.morphologyEx(binary,cv2.MORPH_CLOSE,kernel)
+
         counter=0
         sumvalue=0
         for i in range(1,160):
@@ -93,16 +98,8 @@ class linefollow:
                 self.logmark = False
                 rospy.loginfo("No Line in vision")
             
-
-
-
         self.image_pub.publish(self.bridge.cv2_to_imgmsg(binary , encoding="passthrough"))
         self.image_gray_pub.publish(self.bridge.cv2_to_imgmsg(gray , encoding="passthrough"))
-        # cv2.imshow('gray',frame)
-
-    def cleanup(self):
-        print "Shutting down vision node."
-        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     try:

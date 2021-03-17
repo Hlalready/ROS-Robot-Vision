@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robot_vision</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>The robot_vision package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
@@ -50,7 +50,12 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
-
+  <build_depend>dynamic_reconfigure</build_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>opencv_apps</exec_depend>
+  <exec_depend>uvc_camera</exec_depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->

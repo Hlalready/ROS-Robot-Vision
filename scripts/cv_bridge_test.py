@@ -11,7 +11,7 @@ class image_converter:
         # 创建cv_bridge，声明图像的发布者和订阅者
         self.image_pub = rospy.Publisher("cv_bridge_image", Image, queue_size=1)
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, self.callback)
+        self.image_sub = rospy.Subscriber("/image_raw", Image, self.callback)
 
     def callback(self,data):
         # 使用cv_bridge将ROS的图像数据转换成OpenCV的图像格式
@@ -26,12 +26,14 @@ class image_converter:
             cv2.circle(cv_image, (60, 60), 30, (0,0,255), -1)
 
         # 显示Opencv格式的图像
-        cv2.imshow("Image window", cv_image)
-        cv2.waitKey(3)
+        # cv2.imshow("Image window", cv_image)
+        # cv2.waitKey(3)
 
         # 再将opencv格式额数据转换成ros image格式的数据发布
         try:
-            self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
+            img_msg = self.bridge.cv2_to_imgmsg(cv_image, "bgr8")
+            img_msg.header.stamp = rospy.Time.now()
+            self.image_pub.publish(img_msg)
         except CvBridgeError as e:
             print e
 
