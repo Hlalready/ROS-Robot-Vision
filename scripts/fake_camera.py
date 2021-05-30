@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 class fake_camera:
     def __init__(self):
         self.image_path = rospy.get_param('~image_path','bingda.png')
-        self.image_pub = rospy.Publisher("/image_static", Image, queue_size=3)
+        self.image_pub = rospy.Publisher("/image_raw", Image, queue_size=3)
         self.bridge = CvBridge() 
         self.pub_image()
     def pub_image(self):
