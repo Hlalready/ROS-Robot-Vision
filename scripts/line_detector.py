@@ -66,6 +66,10 @@ class line_follow:
             print e
         # conver image color from RGB to HSV    
         hsv_image = cv2.cvtColor(cv_image,cv2.COLOR_RGB2HSV)
+
+        roi_x, roi_y, roi_width, roi_height = 100, 100, 200, 200
+        hsv_image = hsv_image[roi_y:roi_y+roi_height, roi_x:roi_x+roi_width]
+        
         #set color mask min amd max value
         line_lower = np.array([self.h_lower,self.s_lower,self.v_lower])
         line_upper = np.array([self.h_upper,self.s_upper,self.v_upper])
